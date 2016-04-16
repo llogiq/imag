@@ -20,6 +20,8 @@ use std::fmt::Error as FMTError;
 use toml::{Table, Value};
 use regex::Regex;
 use glob::glob;
+use walkdir::WalkDir;
+use walkdir::Iter as WalkDirIter;
 
 use error::{ParserErrorKind, ParserError};
 use error::{StoreError, StoreErrorKind};
@@ -51,6 +53,60 @@ struct StoreEntry {
     file: LazyFile,
     status: StoreEntryStatus,
 }
+
+pub enum StoreObject {
+    Id(StoreId),
+    Collection(PathBuf),
+}
+
+pub struct Walk {
+    dirwalker: WalkDirIter,
+}
+
+impl Walk {
+
+    fn new(mut store_path: PathBuf, mod_name: &str) -> Walk {
+        store_path.push(mod_name);
+        Walk {
+            dirwalker: WalkDir::new(store_path).into_iter(),
+        }
+    }
+}
+
+impl ::std::ops::Deref for Walk {
+    type Target = WalkDirIter;
+
+    fn deref(&self) -> &Self::Target {
+        &self.dirwalker
+    }
+}
+
+impl Iterator for Walk {
+    type Item = StoreObject;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.dirwalker
+            .next()
+            .and_then(|res| {
+                let res = res.map(|next| {
+                    if next.file_type().is_dir() {
+                        Some(StoreObject::Collection(next.path().to_path_buf()))
+                    } else if next.file_type().is_file() {
+                        Some(StoreObject::Id(next.path().to_path_buf()))
+                    } else {
+                        None // TODO: FIXME: Shall we really stop iterating in this case?
+                    }
+                });
+
+                if res.is_ok() {
+                    res.unwrap()
+                } else {
+                    None
+                }
+            })
+    }
+}
+
 
 impl StoreEntry {
 
@@ -313,6 +369,11 @@ impl Store {
         } else {
             Err(StoreError::new(StoreErrorKind::EncodingError, None))
         }
+    }
+
+    // Walk the store tree for the module
+    pub fn walk<'a>(&'a self, mod_name: &str) -> Walk {
+        Walk::new(self.path().clone(), mod_name)
     }
 
     /// Return the `FileLockEntry` and write to disk
