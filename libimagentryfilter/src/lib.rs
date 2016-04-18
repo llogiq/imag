@@ -29,6 +29,7 @@ extern crate libimagutil;
 // these depend only on libimagstore
 
 pub mod cli;
+pub mod lang;
 pub mod builtin;
 pub mod filter;
 pub mod ops;
