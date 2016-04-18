@@ -10,10 +10,14 @@ log = "0.3.4"
 regex = "0.1"
 toml = "0.1.27"
 semver = "0.2.1"
+rhai = "0.3.0"
 
 [dependencies.libimagstore]
 path = "../libimagstore"
 
 [dependencies.libimagentrytag]
 path = "../libimagentrytag"
+
+[dependencies.libimagutil]
+path = "../libimagutil"
 
