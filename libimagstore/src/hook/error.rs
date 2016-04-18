@@ -57,6 +57,7 @@ impl Display for HookErrorKind {
 pub struct HookError {
     err_type: HookErrorKind,
     cause: Option<Box<Error>>,
+    aborting: bool
 }
 
 impl HookError {
@@ -70,6 +71,7 @@ impl HookError {
             HookError {
                 err_type: errtype,
                 cause: cause,
+                aborting: true,
             }
         }
 
@@ -78,6 +80,14 @@ impl HookError {
      */
     pub fn err_type(&self) -> HookErrorKind {
         self.err_type.clone()
+    }
+
+    pub fn aborting(&mut self, b: bool) {
+        self.aborting = b;
+    }
+
+    pub fn is_aborting(&self) -> bool {
+        self.aborting
     }
 
 }
