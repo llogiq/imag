@@ -14,6 +14,9 @@ toml = "0.1.25"
 version = "2.0.1"
 crossbeam = "0.2.8"
 
+[dependencies.libimagutil]
+path = "../libimagutil"
+
 [dev-dependencies]
 tempdir = "0.3.4"
 env_logger = "0.3"
