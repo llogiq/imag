@@ -12,6 +12,7 @@ use error::DiaryError as DE;
 use error::DiaryErrorKind as DEK;
 use result::Result;
 use iter::DiaryEntryIterator;
+use is_in_diary::IsInDiary;
 
 pub struct Diary<'a> {
     store: &'a Store,
@@ -47,6 +48,17 @@ impl<'a> Diary<'a> {
             .retrieve_for_module("diary")
             .map(|iter| DiaryEntryIterator::new(self.name, self.store, iter))
             .map_err(|e| DE::new(DEK::StoreReadError, Some(Box::new(e))))
+    }
+
+    pub fn delete_entry(&self, entry: Entry) -> Result<()> {
+        if !entry.is_in_diary(self.name) {
+            return Err(DE::new(DEK::EntryNotInDiary, None));
+        }
+        let id = entry.get_location().clone();
+        drop(entry);
+
+        self.store.delete(id)
+            .map_err(|e| DE::new(DEK::StoreWriteError, Some(Box::new(e))))
     }
 
 }

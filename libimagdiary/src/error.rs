@@ -14,6 +14,7 @@ pub enum DiaryErrorKind {
     CannotCreateNote,
     DiaryEditError,
     PathConversionError,
+    EntryNotInDiary,
     // Nothing here yet
 }
 
@@ -25,6 +26,7 @@ fn note_error_type_as_str(e: &DiaryErrorKind) -> &'static str {
         &DiaryErrorKind::CannotCreateNote => "Cannot create Note object for diary entry",
         &DiaryErrorKind::DiaryEditError   => "Cannot edit diary entry",
         &DiaryErrorKind::PathConversionError => "Error while converting paths internally",
+        &DiaryErrorKind::EntryNotInDiary => "Entry not in Diary",
     }
 }
 
