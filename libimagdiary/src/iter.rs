@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use libimagstore::store::Store;
 use libimagstore::storeid::StoreIdIterator;
 

@@ -1,9 +1,6 @@
 use libimagstore::store::Store;
 use libimagstore::storeid::IntoStoreId;
-use chrono::DateTime;
-use chrono::NaiveDateTime;
 use chrono::offset::local::Local;
-use chrono::Timelike;
 use chrono::Datelike;
 
 use entry::Entry;

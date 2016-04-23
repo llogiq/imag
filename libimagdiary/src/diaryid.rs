@@ -1,5 +1,4 @@
 use std::convert::Into;
-use std::path::PathBuf;
 use std::str::FromStr;
 
 use libimagstore::storeid::StoreId;
