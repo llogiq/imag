@@ -2,17 +2,24 @@
 #[macro_use] extern crate version;
 extern crate clap;
 
-extern crate libimagrt;
 extern crate libimagdiary;
+extern crate libimagentrylist;
+extern crate libimagrt;
+extern crate libimagstore;
 extern crate libimagutil;
 
+use std::ops::Deref;
 use std::process::exit;
 
-use libimagrt::edit::Edit;
-use libimagrt::runtime::Runtime;
 use libimagdiary::diary::Diary;
 use libimagdiary::error::DiaryError as DE;
 use libimagdiary::error::DiaryErrorKind as DEK;
+use libimagentrylist::listers::core::CoreLister;
+use libimagentrylist::lister::Lister;
+use libimagrt::edit::Edit;
+use libimagrt::runtime::Runtime;
+use libimagstore::store::FileLockEntry;
+use libimagstore::storeid::StoreId;
 use libimagutil::trace::trace_error;
 
 mod ui;
@@ -83,7 +90,26 @@ fn create(rt: &Runtime) {
 }
 
 fn list(rt: &Runtime) {
-    unimplemented!()
+    let diaryname = get_diary_name(rt);
+    if diaryname.is_none() {
+        warn!("No diary selected. Use either the configuration file or the commandline option");
+        exit(1);
+    }
+    let diaryname = diaryname.unwrap();
+
+    fn location_to_listing_string(id: &StoreId) -> String {
+        unimplemented!()
+    }
+
+    let diary = Diary::open(rt.store(), &diaryname[..]);
+    diary.entries()
+        .and_then(|es| {
+            CoreLister::new(&|e| location_to_listing_string(e.get_location()))
+                .list(es.filter_map(Result::ok).map(|e| e.into())) // TODO: Do not ignore non-ok()s
+                .map_err(|e| DE::new(DEK::IOError, Some(Box::new(e))))
+        })
+        .map(|_| debug!("Ok"))
+        .map_err(|e| trace_error(&e));
 }
 
 fn delete(rt: &Runtime) {
